@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Recipe App – Project Proposal</title>
+<style>
+  @page { size: A4; margin: 20mm; }
+  body {
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    color: #1B3022;
+    line-height: 1.55;
+    font-size: 11.5pt;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  h1 {
+    color: #B55D3D;
+    font-size: 26pt;
+    margin-bottom: 4px;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  .subtitle {
+    color: #7DA042;
+    font-size: 13pt;
+    margin-bottom: 18px;
+  }
+  .meta {
+    background: #FAF7F2;
+    border: 1px solid #E7DFD2;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 22px;
+  }
+  .meta p { margin: 4px 0; }
+  h2 {
+    color: #B55D3D;
+    font-size: 15pt;
+    border-bottom: 2px solid #E7DFD2;
+    padding-bottom: 4px;
+    margin-top: 26px;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  ul { margin-top: 6px; }
+  li { margin-bottom: 4px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 16px;
+  }
+  th, td {
+    border: 1px solid #D8CFC0;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #FAF7F2;
+    color: #B55D3D;
+  }
+  .footer {
+    margin-top: 32px;
+    font-size: 10pt;
+    color: #666;
+    border-top: 1px solid #E7DFD2;
+    padding-top: 10px;
+  }
+</style>
+</head>
+<body>
+  <h1>Recipe</h1>
+  <div class="subtitle">Android Mobile Application – Project Proposal</div>
+
+  <div class="meta">
+    <p><strong>Project Name:</strong> Recipe</p>
+    <p><strong>Platform:</strong> Android (Kotlin + Jetpack Compose)</p>
+    <p><strong>Backend / Data Source:</strong> TheMealDB API</p>
+    <p><strong>Document Type:</strong> Project Proposal</p>
+    <p><strong>Date:</strong> August 2026</p>
+  </div>
+
+  <h2>1. Introduction</h2>
+  <p>
+    <strong>Recipe</strong> is a mobile Android application designed to help users discover and organize
+    meals using real recipe data from the internet. Similar to how movie apps use TMDB as a database,
+    this project uses <strong>TheMealDB</strong> as a free online recipe API to provide meal names,
+    images, categories, and ingredients.
+  </p>
+  <p>
+    The app focuses on a practical everyday use case: finding recipes quickly, saving favorites,
+    planning a shopping list, and later using AI chat to support cooking decisions.
+  </p>
+
+  <h2>2. Problem Statement</h2>
+  <p>
+    Many people struggle to decide what to cook or forget which ingredients they need.
+    Existing recipe websites are often cluttered and not optimized for fast mobile use.
+    Users need a simple app that can:
+  </p>
+  <ul>
+    <li>Browse and search recipes easily</li>
+    <li>Show clear food images and ingredient information</li>
+    <li>Save favorite recipes</li>
+    <li>Generate or manage a shopping list</li>
+    <li>Offer smart help through chat / AI in future versions</li>
+  </ul>
+
+  <h2>3. Project Objectives</h2>
+  <ul>
+    <li>Build a clean and modern Android recipe application</li>
+    <li>Integrate a public recipe API (TheMealDB) as the backend data source</li>
+    <li>Implement a home screen with search and recipe cards</li>
+    <li>Add navigation for Home, Chat, Shopping List, Favorite, and Profile</li>
+    <li>Provide a branded splash screen with Lottie animation</li>
+    <li>Prepare the foundation for AI features and personal kitchen inventory</li>
+  </ul>
+
+  <h2>4. Proposed Solution</h2>
+  <p>
+    The app will present recipes in a warm, food-focused design with a cream background and a
+    salad-bowl logo. Users will open the app through an animated splash screen, then land on the
+    home page where they can search and browse meals fetched from TheMealDB.
+  </p>
+  <p>
+    A bottom navigation bar will give access to the main sections of the app, with
+    <strong>Shopping List</strong> placed in the middle for quick access.
+  </p>
+
+  <h2>5. Main Features</h2>
+  <table>
+    <tr>
+      <th>Feature</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>Splash Screen</td>
+      <td>Animated Lottie food intro with app name and branding</td>
+    </tr>
+    <tr>
+      <td>Home Page</td>
+      <td>Recipe grid, logo, search bar, and favorite hearts</td>
+    </tr>
+    <tr>
+      <td>TheMealDB Integration</td>
+      <td>Fetch and search real recipes with images and ingredient counts</td>
+    </tr>
+    <tr>
+      <td>Bottom Navigation</td>
+      <td>Home, Chat, Shopping List, Favorite, Profile</td>
+    </tr>
+    <tr>
+      <td>Favorites</td>
+      <td>Mark recipes as favorite</td>
+    </tr>
+    <tr>
+      <td>Shopping List</td>
+      <td>Create a list of missing ingredients for selected recipes</td>
+    </tr>
+    <tr>
+      <td>Chat / AI Assistant</td>
+      <td>Suggest recipes from ingredients and answer cooking questions</td>
+    </tr>
+    <tr>
+      <td>Profile</td>
+      <td>User settings and personal preferences</td>
+    </tr>
+  </table>
+
+  <h2>6. Design Overview</h2>
+  <ul>
+    <li><strong>App name:</strong> Recipe</li>
+    <li><strong>Logo:</strong> Static salad-bowl image (also used as launcher icon)</li>
+    <li><strong>Colors:</strong> Cream background, terracotta accents, forest green text, sage green details</li>
+    <li><strong>Home layout:</strong> Title on the left, logo on the top right, search under the header, 2-column recipe cards</li>
+    <li><strong>Bottom bar:</strong> Home · Chat · List · Favorite · Profile</li>
+  </ul>
+
+  <h2>7. Technical Stack</h2>
+  <table>
+    <tr>
+      <th>Area</th>
+      <th>Technology</th>
+    </tr>
+    <tr>
+      <td>Language</td>
+      <td>Kotlin</td>
+    </tr>
+    <tr>
+      <td>UI</td>
+      <td>Jetpack Compose + Material 3</td>
+    </tr>
+    <tr>
+      <td>Architecture</td>
+      <td>UI / ViewModel / Repository / API layers</td>
+    </tr>
+    <tr>
+      <td>Networking</td>
+      <td>Retrofit + OkHttp + Gson</td>
+    </tr>
+    <tr>
+      <td>Images</td>
+      <td>Coil</td>
+    </tr>
+    <tr>
+      <td>Animation</td>
+      <td>Lottie</td>
+    </tr>
+    <tr>
+      <td>API / Backend</td>
+      <td>TheMealDB (https://www.themealdb.com/api.php)</td>
+    </tr>
+    <tr>
+      <td>IDE</td>
+      <td>Android Studio</td>
+    </tr>
+  </table>
+
+  <h2>8. Why TheMealDB?</h2>
+  <p>
+    TheMealDB works as a public recipe database in a similar way to TMDB for movies.
+    It provides endpoints to search meals, load meal details, and get images without requiring
+    a complex custom backend at the beginning of the project. This allows faster development and
+    a realistic online data experience.
+  </p>
+
+  <h2>9. Future Enhancements</h2>
+  <ul>
+    <li>Recipe details screen with full instructions and ingredient list</li>
+    <li>Persistent favorites using local database (Room)</li>
+    <li>Shopping list generation from selected recipes</li>
+    <li>AI chat for recipe suggestions and substitutions</li>
+    <li>User authentication and personal profile</li>
+  </ul>
+
+  <h2>10. Expected Outcomes</h2>
+  <p>
+    By the end of the project, the result will be a working Android application that
+    demonstrates API integration, modern UI design, navigation, and practical mobile development skills.
+    The app will be useful for everyday cooking.
+  </p>
+
+  <h2>11. Conclusion</h2>
+  <p>
+    <strong>Recipe</strong> combines a clean visual design with real online recipe data to create a
+    simple and useful cooking companion. Using TheMealDB as the backend makes the project practical,
+    scalable, and similar in concept to popular content apps that rely on public APIs.
+  </p>
+
+  <div class="footer">
+    Recipe – Android Project Proposal · August 2026
+  </div>
+</body>
+</html>

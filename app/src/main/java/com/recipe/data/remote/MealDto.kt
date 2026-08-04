@@ -1,0 +1,42 @@
+package com.recipe.data.remote
+
+import com.google.gson.annotations.SerializedName
+
+data class MealsResponse(
+    @SerializedName("meals") val meals: List<MealDto>?,
+)
+
+data class MealDto(
+    @SerializedName("idMeal") val idMeal: String?,
+    @SerializedName("strMeal") val strMeal: String?,
+    @SerializedName("strMealThumb") val strMealThumb: String?,
+    @SerializedName("strCategory") val strCategory: String?,
+    @SerializedName("strArea") val strArea: String?,
+    @SerializedName("strIngredient1") val strIngredient1: String? = null,
+    @SerializedName("strIngredient2") val strIngredient2: String? = null,
+    @SerializedName("strIngredient3") val strIngredient3: String? = null,
+    @SerializedName("strIngredient4") val strIngredient4: String? = null,
+    @SerializedName("strIngredient5") val strIngredient5: String? = null,
+    @SerializedName("strIngredient6") val strIngredient6: String? = null,
+    @SerializedName("strIngredient7") val strIngredient7: String? = null,
+    @SerializedName("strIngredient8") val strIngredient8: String? = null,
+    @SerializedName("strIngredient9") val strIngredient9: String? = null,
+    @SerializedName("strIngredient10") val strIngredient10: String? = null,
+    @SerializedName("strIngredient11") val strIngredient11: String? = null,
+    @SerializedName("strIngredient12") val strIngredient12: String? = null,
+    @SerializedName("strIngredient13") val strIngredient13: String? = null,
+    @SerializedName("strIngredient14") val strIngredient14: String? = null,
+    @SerializedName("strIngredient15") val strIngredient15: String? = null,
+    @SerializedName("strIngredient16") val strIngredient16: String? = null,
+    @SerializedName("strIngredient17") val strIngredient17: String? = null,
+    @SerializedName("strIngredient18") val strIngredient18: String? = null,
+    @SerializedName("strIngredient19") val strIngredient19: String? = null,
+    @SerializedName("strIngredient20") val strIngredient20: String? = null,
+) {
+    fun ingredientCount(): Int = listOf(
+        strIngredient1, strIngredient2, strIngredient3, strIngredient4, strIngredient5,
+        strIngredient6, strIngredient7, strIngredient8, strIngredient9, strIngredient10,
+        strIngredient11, strIngredient12, strIngredient13, strIngredient14, strIngredient15,
+        strIngredient16, strIngredient17, strIngredient18, strIngredient19, strIngredient20,
+    ).count { !it.isNullOrBlank() }
+}
