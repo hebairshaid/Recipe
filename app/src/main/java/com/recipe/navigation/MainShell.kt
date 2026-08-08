@@ -33,6 +33,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.recipe.details.RecipeDetailsScreen
+import com.recipe.favorites.FavoritesScreen
 import com.recipe.home.HomeScreen
 import com.recipe.ui.theme.CreamBackground
 import com.recipe.ui.theme.ForestGreen
@@ -44,8 +51,49 @@ private data class BottomTab(
     val unselectedIcon: ImageVector,
 )
 
+private object Routes {
+    const val MAIN = "main"
+    const val DETAILS = "recipe_details/{recipeId}"
+
+    fun details(recipeId: String) = "recipe_details/$recipeId"
+}
+
 @Composable
 fun MainShell() {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = Routes.MAIN,
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        composable(Routes.MAIN) {
+            MainTabs(
+                onRecipeClick = { recipeId ->
+                    navController.navigate(Routes.details(recipeId))
+                },
+            )
+        }
+        composable(
+            route = Routes.DETAILS,
+            arguments = listOf(
+                navArgument("recipeId") { type = NavType.StringType },
+            ),
+        ) { entry ->
+            val recipeId = entry.arguments?.getString("recipeId").orEmpty()
+            RecipeDetailsScreen(
+                recipeId = recipeId,
+                onBack = { navController.popBackStack() },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+    }
+}
+
+@Composable
+private fun MainTabs(
+    onRecipeClick: (String) -> Unit,
+) {
     val tabs = listOf(
         BottomTab("Home", Icons.Rounded.Home, Icons.Outlined.Home),
         BottomTab("Chat", Icons.Rounded.ChatBubble, Icons.Outlined.ChatBubbleOutline),
@@ -98,10 +146,16 @@ fun MainShell() {
                 .padding(innerPadding),
         ) {
             when (selectedIndex) {
-                0 -> HomeScreen(modifier = Modifier.fillMaxSize())
+                0 -> HomeScreen(
+                    onRecipeClick = onRecipeClick,
+                    modifier = Modifier.fillMaxSize(),
+                )
                 1 -> PlaceholderTab(title = "Chat")
                 2 -> PlaceholderTab(title = "Shopping List")
-                3 -> PlaceholderTab(title = "Favorite")
+                3 -> FavoritesScreen(
+                    onRecipeClick = onRecipeClick,
+                    modifier = Modifier.fillMaxSize(),
+                )
                 4 -> PlaceholderTab(title = "Profile")
             }
         }

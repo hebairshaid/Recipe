@@ -60,6 +60,7 @@ import com.recipe.ui.theme.Terracotta
 
 @Composable
 fun HomeScreen(
+    onRecipeClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.factory()),
 ) {
@@ -182,7 +183,8 @@ fun HomeScreen(
                         RecipeCard(
                             recipe = recipe,
                             isFavorite = recipe.id in state.favoriteIds,
-                            onFavoriteClick = { viewModel.toggleFavorite(recipe.id) },
+                            onFavoriteClick = { viewModel.toggleFavorite(recipe) },
+                            onClick = { onRecipeClick(recipe.id) },
                         )
                     }
                 }
@@ -196,9 +198,14 @@ private fun RecipeCard(
     recipe: Recipe,
     isFavorite: Boolean,
     onFavoriteClick: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+    ) {
         AsyncImage(
             model = recipe.imageUrl,
             contentDescription = recipe.name,
@@ -207,8 +214,7 @@ private fun RecipeCard(
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(18.dp))
-                .background(Color.White.copy(alpha = 0.5f))
-                .clickable { },
+                .background(Color.White.copy(alpha = 0.5f)),
         )
 
         Spacer(modifier = Modifier.height(8.dp))

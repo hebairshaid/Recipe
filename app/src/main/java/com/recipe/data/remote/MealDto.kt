@@ -12,6 +12,7 @@ data class MealDto(
     @SerializedName("strMealThumb") val strMealThumb: String?,
     @SerializedName("strCategory") val strCategory: String?,
     @SerializedName("strArea") val strArea: String?,
+    @SerializedName("strInstructions") val strInstructions: String? = null,
     @SerializedName("strIngredient1") val strIngredient1: String? = null,
     @SerializedName("strIngredient2") val strIngredient2: String? = null,
     @SerializedName("strIngredient3") val strIngredient3: String? = null,
@@ -32,11 +33,46 @@ data class MealDto(
     @SerializedName("strIngredient18") val strIngredient18: String? = null,
     @SerializedName("strIngredient19") val strIngredient19: String? = null,
     @SerializedName("strIngredient20") val strIngredient20: String? = null,
+    @SerializedName("strMeasure1") val strMeasure1: String? = null,
+    @SerializedName("strMeasure2") val strMeasure2: String? = null,
+    @SerializedName("strMeasure3") val strMeasure3: String? = null,
+    @SerializedName("strMeasure4") val strMeasure4: String? = null,
+    @SerializedName("strMeasure5") val strMeasure5: String? = null,
+    @SerializedName("strMeasure6") val strMeasure6: String? = null,
+    @SerializedName("strMeasure7") val strMeasure7: String? = null,
+    @SerializedName("strMeasure8") val strMeasure8: String? = null,
+    @SerializedName("strMeasure9") val strMeasure9: String? = null,
+    @SerializedName("strMeasure10") val strMeasure10: String? = null,
+    @SerializedName("strMeasure11") val strMeasure11: String? = null,
+    @SerializedName("strMeasure12") val strMeasure12: String? = null,
+    @SerializedName("strMeasure13") val strMeasure13: String? = null,
+    @SerializedName("strMeasure14") val strMeasure14: String? = null,
+    @SerializedName("strMeasure15") val strMeasure15: String? = null,
+    @SerializedName("strMeasure16") val strMeasure16: String? = null,
+    @SerializedName("strMeasure17") val strMeasure17: String? = null,
+    @SerializedName("strMeasure18") val strMeasure18: String? = null,
+    @SerializedName("strMeasure19") val strMeasure19: String? = null,
+    @SerializedName("strMeasure20") val strMeasure20: String? = null,
 ) {
-    fun ingredientCount(): Int = listOf(
-        strIngredient1, strIngredient2, strIngredient3, strIngredient4, strIngredient5,
-        strIngredient6, strIngredient7, strIngredient8, strIngredient9, strIngredient10,
-        strIngredient11, strIngredient12, strIngredient13, strIngredient14, strIngredient15,
-        strIngredient16, strIngredient17, strIngredient18, strIngredient19, strIngredient20,
-    ).count { !it.isNullOrBlank() }
+    fun ingredients(): List<Pair<String, String>> {
+        val names = listOf(
+            strIngredient1, strIngredient2, strIngredient3, strIngredient4, strIngredient5,
+            strIngredient6, strIngredient7, strIngredient8, strIngredient9, strIngredient10,
+            strIngredient11, strIngredient12, strIngredient13, strIngredient14, strIngredient15,
+            strIngredient16, strIngredient17, strIngredient18, strIngredient19, strIngredient20,
+        )
+        val measures = listOf(
+            strMeasure1, strMeasure2, strMeasure3, strMeasure4, strMeasure5,
+            strMeasure6, strMeasure7, strMeasure8, strMeasure9, strMeasure10,
+            strMeasure11, strMeasure12, strMeasure13, strMeasure14, strMeasure15,
+            strMeasure16, strMeasure17, strMeasure18, strMeasure19, strMeasure20,
+        )
+        return names.zip(measures).mapNotNull { (name, measure) ->
+            val cleanName = name?.trim().orEmpty()
+            if (cleanName.isBlank()) null
+            else cleanName to measure?.trim().orEmpty()
+        }
+    }
+
+    fun ingredientCount(): Int = ingredients().size
 }
