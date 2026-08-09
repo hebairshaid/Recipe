@@ -42,6 +42,7 @@ import com.recipe.details.RecipeDetailsScreen
 import com.recipe.favorites.FavoritesScreen
 import com.recipe.home.HomeScreen
 import com.recipe.profile.ProfileScreen
+import com.recipe.shoppinglist.ShoppingListScreen
 import com.recipe.ui.theme.CreamBackground
 import com.recipe.ui.theme.ForestGreen
 import com.recipe.ui.theme.Terracotta
@@ -156,7 +157,7 @@ private fun MainTabs(
                     modifier = Modifier.fillMaxSize(),
                 )
                 1 -> PlaceholderTab(title = "Chat")
-                2 -> PlaceholderTab(title = "Shopping List")
+                2 -> ShoppingListScreen(modifier = Modifier.fillMaxSize())
                 3 -> FavoritesScreen(
                     onRecipeClick = onRecipeClick,
                     modifier = Modifier.fillMaxSize(),

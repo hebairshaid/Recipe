@@ -6,13 +6,14 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [UserEntity::class, FavoriteEntity::class],
-    version = 2,
+    entities = [UserEntity::class, FavoriteEntity::class, ShoppingListEntity::class],
+    version = 3,
     exportSchema = false,
 )
 abstract class AuthDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun favoriteDao(): FavoriteDao
+    abstract fun shoppingListDao(): ShoppingListDao
 
     companion object {
         @Volatile

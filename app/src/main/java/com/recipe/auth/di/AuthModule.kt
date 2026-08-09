@@ -9,11 +9,13 @@ import com.recipe.auth.domain.repository.AuthRepository
 import com.recipe.auth.domain.session.SessionRepository
 import com.recipe.auth.domain.session.SessionToken
 import com.recipe.data.repository.FavoritesRepository
+import com.recipe.data.repository.ShoppingListRepository
 
 class AuthDependencies(
     val authRepository: AuthRepository,
     val sessionRepository: SessionRepository,
     val favoritesRepository: FavoritesRepository,
+    val shoppingListRepository: ShoppingListRepository,
 ) {
     suspend fun hasValidSession(): Boolean {
         val token = sessionRepository.getToken() ?: return false
@@ -47,6 +49,10 @@ object AuthModule {
                     sessionRepository = sessionRepository,
                     favoritesRepository = FavoritesRepository(
                         favoriteDao = db.favoriteDao(),
+                        sessionRepository = sessionRepository,
+                    ),
+                    shoppingListRepository = ShoppingListRepository(
+                        shoppingListDao = db.shoppingListDao(),
                         sessionRepository = sessionRepository,
                     ),
                 )
