@@ -82,4 +82,31 @@ class AuthRepositoryImpl(
             email = entity.email,
         )
     }
+
+    override suspend fun updatePassword(
+        email: String,
+        currentPassword: String,
+        newPassword: String,
+    ) {
+        val cleanEmail = email.trim().lowercase()
+        val cleanCurrent = currentPassword.trim()
+        val cleanNew = newPassword.trim()
+
+        PasswordPolicy.validate(cleanNew)
+
+        val user = userDao.getUserByEmail(cleanEmail)
+            ?: throw IllegalArgumentException("User not found")
+
+        if (!passwordHasher.verify(cleanCurrent, user.passwordHash)) {
+            throw IllegalArgumentException("Current password is incorrect")
+        }
+
+        val updated = userDao.updatePasswordByEmail(
+            email = cleanEmail,
+            hashedPassword = passwordHasher.hash(cleanNew),
+        )
+        if (updated == 0) {
+            throw IllegalArgumentException("Failed to update password")
+        }
+    }
 }

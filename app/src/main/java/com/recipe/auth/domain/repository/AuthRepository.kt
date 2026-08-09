@@ -8,4 +8,9 @@ interface AuthRepository {
     suspend fun login(email: String, password: String): AuthResponse
     suspend fun isEmailExists(email: String): Boolean
     suspend fun getUserByEmail(email: String): User?
+    suspend fun updatePassword(
+        email: String,
+        currentPassword: String,
+        newPassword: String,
+    )
 }

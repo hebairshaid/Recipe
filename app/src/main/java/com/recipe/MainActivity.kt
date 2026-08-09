@@ -80,7 +80,9 @@ private fun RecipeApp() {
         }
 
         AppDestination.Main -> {
-            MainShell()
+            MainShell(
+                onLogout = { destination = AppDestination.Auth },
+            )
         }
     }
 }

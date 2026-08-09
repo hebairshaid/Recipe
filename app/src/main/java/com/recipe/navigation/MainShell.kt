@@ -41,6 +41,7 @@ import androidx.navigation.navArgument
 import com.recipe.details.RecipeDetailsScreen
 import com.recipe.favorites.FavoritesScreen
 import com.recipe.home.HomeScreen
+import com.recipe.profile.ProfileScreen
 import com.recipe.ui.theme.CreamBackground
 import com.recipe.ui.theme.ForestGreen
 import com.recipe.ui.theme.Terracotta
@@ -59,7 +60,9 @@ private object Routes {
 }
 
 @Composable
-fun MainShell() {
+fun MainShell(
+    onLogout: () -> Unit = {},
+) {
     val navController = rememberNavController()
 
     NavHost(
@@ -72,6 +75,7 @@ fun MainShell() {
                 onRecipeClick = { recipeId ->
                     navController.navigate(Routes.details(recipeId))
                 },
+                onLogout = onLogout,
             )
         }
         composable(
@@ -93,6 +97,7 @@ fun MainShell() {
 @Composable
 private fun MainTabs(
     onRecipeClick: (String) -> Unit,
+    onLogout: () -> Unit,
 ) {
     val tabs = listOf(
         BottomTab("Home", Icons.Rounded.Home, Icons.Outlined.Home),
@@ -156,7 +161,10 @@ private fun MainTabs(
                     onRecipeClick = onRecipeClick,
                     modifier = Modifier.fillMaxSize(),
                 )
-                4 -> PlaceholderTab(title = "Profile")
+                4 -> ProfileScreen(
+                    onLogout = onLogout,
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
     }
