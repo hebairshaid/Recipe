@@ -19,8 +19,8 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -48,6 +48,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.recipe.domain.model.Recipe
 import com.recipe.ui.components.AnimatedLogo
@@ -63,6 +67,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.factory()),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val recipes = viewModel.recipes.collectAsLazyPagingItems()
 
     Column(
         modifier = modifier
@@ -123,63 +128,126 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        when {
-            state.isLoading && state.recipes.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(color = Terracotta)
-                }
-            }
+        RecipeGrid(
+            recipes = recipes,
+            favoriteIds = state.favoriteIds,
+            onFavoriteClick = viewModel::toggleFavorite,
+            onRecipeClick = onRecipeClick,
+        )
+    }
+}
 
-            state.errorMessage != null && state.recipes.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = state.errorMessage ?: "Something went wrong",
-                            color = ForestGreen,
-                        )
-                        TextButton(onClick = viewModel::loadHome) {
-                            Text("Retry", color = Terracotta)
-                        }
+@Composable
+private fun RecipeGrid(
+    recipes: LazyPagingItems<Recipe>,
+    favoriteIds: Set<String>,
+    onFavoriteClick: (Recipe) -> Unit,
+    onRecipeClick: (String) -> Unit,
+) {
+    val refresh = recipes.loadState.refresh
+    val append = recipes.loadState.append
+
+    when {
+        refresh is LoadState.Loading && recipes.itemCount == 0 -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(color = Terracotta)
+            }
+        }
+
+        refresh is LoadState.Error && recipes.itemCount == 0 -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = refresh.error.message ?: "Something went wrong",
+                        color = ForestGreen,
+                    )
+                    TextButton(onClick = { recipes.retry() }) {
+                        Text("Retry", color = Terracotta)
                     }
                 }
             }
+        }
 
-            state.recipes.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "No recipes found",
-                        color = ForestGreen.copy(alpha = 0.7f),
-                        fontFamily = FontFamily.Serif,
-                        fontSize = 18.sp,
+        refresh is LoadState.NotLoading && recipes.itemCount == 0 -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "No recipes found",
+                    color = ForestGreen.copy(alpha = 0.7f),
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 18.sp,
+                )
+            }
+        }
+
+        else -> {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp),
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                items(
+                    count = recipes.itemCount,
+                    key = recipes.itemKey { it.id },
+                ) { index ->
+                    val recipe = recipes[index] ?: return@items
+                    RecipeCard(
+                        recipe = recipe,
+                        isFavorite = recipe.id in favoriteIds,
+                        onFavoriteClick = { onFavoriteClick(recipe) },
+                        onClick = { onRecipeClick(recipe.id) },
                     )
                 }
-            }
 
-            else -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(18.dp),
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    items(state.recipes, key = { it.id }) { recipe ->
-                        RecipeCard(
-                            recipe = recipe,
-                            isFavorite = recipe.id in state.favoriteIds,
-                            onFavoriteClick = { viewModel.toggleFavorite(recipe) },
-                            onClick = { onRecipeClick(recipe.id) },
-                        )
+                when (append) {
+                    is LoadState.Loading -> {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CircularProgressIndicator(
+                                    color = Terracotta,
+                                    modifier = Modifier.size(28.dp),
+                                    strokeWidth = 3.dp,
+                                )
+                            }
+                        }
                     }
+
+                    is LoadState.Error -> {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text(
+                                    text = "Couldn't load more",
+                                    color = ForestGreen.copy(alpha = 0.75f),
+                                    fontSize = 13.sp,
+                                )
+                                TextButton(onClick = { recipes.retry() }) {
+                                    Text("Retry", color = Terracotta)
+                                }
+                            }
+                        }
+                    }
+
+                    else -> Unit
                 }
             }
         }

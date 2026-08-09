@@ -1,26 +1,33 @@
 package com.recipe.data.repository
 
-import com.recipe.data.remote.MealDto
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import com.recipe.data.paging.RecipePagingSource
 import com.recipe.data.remote.TheMealDbApi
-import com.recipe.domain.model.Ingredient
+import com.recipe.data.remote.toRecipeDetail
 import com.recipe.domain.model.Recipe
 import com.recipe.domain.model.RecipeDetail
+import kotlinx.coroutines.flow.Flow
 
 class RecipeRepository(
     private val api: TheMealDbApi,
 ) {
-    suspend fun getHomeRecipes(): List<Recipe> {
-        val letters = listOf("a", "b", "c", "s")
-        return letters
-            .flatMap { letter -> api.mealsByFirstLetter(letter).meals.orEmpty() }
-            .mapNotNull { it.toRecipe() }
-            .distinctBy { it.id }
-            .shuffled()
-    }
-
-    suspend fun searchRecipes(query: String): List<Recipe> {
-        if (query.isBlank()) return getHomeRecipes()
-        return api.searchMeals(query.trim()).meals.orEmpty().mapNotNull { it.toRecipe() }
+    fun getPagedRecipes(query: String): Flow<PagingData<Recipe>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                initialLoadSize = 20,
+                prefetchDistance = 4,
+                enablePlaceholders = false,
+            ),
+            pagingSourceFactory = {
+                RecipePagingSource(
+                    api = api,
+                    query = query,
+                )
+            },
+        ).flow
     }
 
     suspend fun getRecipeDetail(id: String): RecipeDetail {
@@ -28,34 +35,5 @@ class RecipeRepository(
             ?: error("Recipe not found")
         return meal.toRecipeDetail()
             ?: error("Recipe not found")
-    }
-
-    private fun MealDto.toRecipe(): Recipe? {
-        val id = idMeal?.takeIf { it.isNotBlank() } ?: return null
-        val name = strMeal?.takeIf { it.isNotBlank() } ?: return null
-        return Recipe(
-            id = id,
-            name = name,
-            imageUrl = strMealThumb.orEmpty(),
-            category = strCategory.orEmpty(),
-            area = strArea.orEmpty(),
-            ingredientCount = ingredientCount(),
-        )
-    }
-
-    private fun MealDto.toRecipeDetail(): RecipeDetail? {
-        val id = idMeal?.takeIf { it.isNotBlank() } ?: return null
-        val name = strMeal?.takeIf { it.isNotBlank() } ?: return null
-        return RecipeDetail(
-            id = id,
-            name = name,
-            imageUrl = strMealThumb.orEmpty(),
-            category = strCategory.orEmpty(),
-            area = strArea.orEmpty(),
-            ingredients = ingredients().map { (ingredient, measure) ->
-                Ingredient(name = ingredient, measure = measure)
-            },
-            instructions = strInstructions?.trim().orEmpty(),
-        )
     }
 }
