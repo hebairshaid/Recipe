@@ -3,6 +3,7 @@ package com.recipe.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.recipe.auth.di.AuthModule
 import com.recipe.data.remote.NetworkModule
 import com.recipe.data.repository.FavoritesRepository
 import com.recipe.data.repository.RecipeRepository
@@ -26,7 +27,7 @@ data class RecipeDetailsUiState(
 class RecipeDetailsViewModel(
     private val recipeId: String,
     private val repository: RecipeRepository,
-    private val favoritesRepository: FavoritesRepository = FavoritesRepository,
+    private val favoritesRepository: FavoritesRepository,
 ) : ViewModel() {
 
     private val _detailState = MutableStateFlow(RecipeDetailsUiState())
@@ -68,16 +69,18 @@ class RecipeDetailsViewModel(
 
     fun toggleFavorite() {
         val detail = _detailState.value.detail ?: return
-        favoritesRepository.toggle(
-            Recipe(
-                id = detail.id,
-                name = detail.name,
-                imageUrl = detail.imageUrl,
-                category = detail.category,
-                area = detail.area,
-                ingredientCount = detail.ingredients.size,
-            ),
-        )
+        viewModelScope.launch {
+            favoritesRepository.toggle(
+                Recipe(
+                    id = detail.id,
+                    name = detail.name,
+                    imageUrl = detail.imageUrl,
+                    category = detail.category,
+                    area = detail.area,
+                    ingredientCount = detail.ingredients.size,
+                ),
+            )
+        }
     }
 
     companion object {
@@ -85,8 +88,11 @@ class RecipeDetailsViewModel(
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    val repository = RecipeRepository(NetworkModule.api)
-                    return RecipeDetailsViewModel(recipeId, repository) as T
+                    return RecipeDetailsViewModel(
+                        recipeId = recipeId,
+                        repository = RecipeRepository(NetworkModule.api),
+                        favoritesRepository = AuthModule.get().favoritesRepository,
+                    ) as T
                 }
             }
     }

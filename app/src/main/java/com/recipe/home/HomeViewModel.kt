@@ -3,6 +3,7 @@ package com.recipe.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.recipe.auth.di.AuthModule
 import com.recipe.data.remote.NetworkModule
 import com.recipe.data.repository.FavoritesRepository
 import com.recipe.data.repository.RecipeRepository
@@ -27,7 +28,7 @@ data class HomeUiState(
 
 class HomeViewModel(
     private val repository: RecipeRepository,
-    private val favoritesRepository: FavoritesRepository = FavoritesRepository,
+    private val favoritesRepository: FavoritesRepository,
 ) : ViewModel() {
 
     private val _homeState = MutableStateFlow(HomeUiState(isLoading = true))
@@ -93,15 +94,19 @@ class HomeViewModel(
     }
 
     fun toggleFavorite(recipe: Recipe) {
-        favoritesRepository.toggle(recipe)
+        viewModelScope.launch {
+            favoritesRepository.toggle(recipe)
+        }
     }
 
     companion object {
         fun factory(): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val repository = RecipeRepository(NetworkModule.api)
-                return HomeViewModel(repository) as T
+                return HomeViewModel(
+                    repository = RecipeRepository(NetworkModule.api),
+                    favoritesRepository = AuthModule.get().favoritesRepository,
+                ) as T
             }
         }
     }

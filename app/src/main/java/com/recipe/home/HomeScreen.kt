@@ -1,6 +1,5 @@
 package com.recipe.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,8 +49,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.recipe.R
 import com.recipe.domain.model.Recipe
+import com.recipe.ui.components.AnimatedLogo
 import com.recipe.ui.theme.CreamBackground
 import com.recipe.ui.theme.ForestGreen
 import com.recipe.ui.theme.SageGreen
@@ -87,12 +85,7 @@ fun HomeScreen(
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = FontFamily.Serif,
             )
-            Image(
-                painter = painterResource(id = R.drawable.ic_recipe_logo),
-                contentDescription = "Recipe logo",
-                modifier = Modifier.size(52.dp),
-                contentScale = ContentScale.Fit,
-            )
+            AnimatedLogo(size = 56.dp)
         }
 
         Spacer(modifier = Modifier.height(14.dp))
