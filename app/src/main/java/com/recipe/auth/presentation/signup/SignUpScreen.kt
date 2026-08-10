@@ -35,8 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.recipe.R
 import com.recipe.auth.presentation.components.AuthTextField
 import com.recipe.ui.theme.CreamBackground
@@ -49,7 +49,7 @@ fun SignUpScreen(
     onSignUpSuccess: () -> Unit,
     onNavigateToLogin: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: SignUpViewModel = viewModel(factory = SignUpViewModel.factory()),
+    viewModel: SignUpViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

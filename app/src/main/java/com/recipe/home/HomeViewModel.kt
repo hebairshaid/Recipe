@@ -1,16 +1,15 @@
 package com.recipe.home
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.recipe.auth.di.AuthModule
 import com.recipe.auth.domain.session.SessionRepository
 import com.recipe.data.network.NetworkMonitor
 import com.recipe.data.repository.FavoritesRepository
 import com.recipe.data.repository.RecipeRepository
 import com.recipe.domain.model.Recipe
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +23,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class HomeUiState(
     val query: String = "",
@@ -33,7 +33,8 @@ data class HomeUiState(
 )
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-class HomeViewModel(
+@HiltViewModel
+class HomeViewModel @Inject constructor(
     private val repository: RecipeRepository,
     private val favoritesRepository: FavoritesRepository,
     private val sessionRepository: SessionRepository,
@@ -85,20 +86,5 @@ class HomeViewModel(
     fun logout() {
         sessionRepository.clearToken()
         _loggedOut.value = true
-    }
-
-    companion object {
-        fun factory(): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val deps = AuthModule.get()
-                return HomeViewModel(
-                    repository = deps.recipeRepository,
-                    favoritesRepository = deps.favoritesRepository,
-                    sessionRepository = deps.sessionRepository,
-                    networkMonitor = deps.networkMonitor,
-                ) as T
-            }
-        }
     }
 }

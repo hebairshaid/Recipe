@@ -18,13 +18,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.recipe.auth.di.AuthModule
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.recipe.auth.presentation.AuthNavHost
 import com.recipe.navigation.MainShell
+import com.recipe.session.SessionCheckViewModel
 import com.recipe.splash.SplashScreen
 import com.recipe.ui.theme.CreamBackground
 import com.recipe.ui.theme.RecipeTheme
 import com.recipe.ui.theme.Terracotta
+import dagger.hilt.android.AndroidEntryPoint
 
 private enum class AppDestination {
     Splash,
@@ -33,10 +35,10 @@ private enum class AppDestination {
     Main,
 }
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AuthModule.init(applicationContext)
         val cream = Color.parseColor("#FAF7F2")
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
@@ -69,18 +71,10 @@ private fun RecipeApp() {
         }
 
         AppDestination.CheckingSession -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(CreamBackground),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator(color = Terracotta)
-            }
-            LaunchedEffect(Unit) {
-                val hasSession = AuthModule.get().hasValidSession()
-                destination = if (hasSession) AppDestination.Main else AppDestination.Auth
-            }
+            SessionCheckRoute(
+                onSessionValid = { destination = AppDestination.Main },
+                onSessionInvalid = { destination = AppDestination.Auth },
+            )
         }
 
         AppDestination.Auth -> {
@@ -93,6 +87,29 @@ private fun RecipeApp() {
             MainShell(
                 onLogout = { destination = AppDestination.Auth },
             )
+        }
+    }
+}
+
+@Composable
+private fun SessionCheckRoute(
+    onSessionValid: () -> Unit,
+    onSessionInvalid: () -> Unit,
+    viewModel: SessionCheckViewModel = hiltViewModel(),
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(CreamBackground),
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgressIndicator(color = Terracotta)
+    }
+    LaunchedEffect(Unit) {
+        if (viewModel.validateSession()) {
+            onSessionValid()
+        } else {
+            onSessionInvalid()
         }
     }
 }

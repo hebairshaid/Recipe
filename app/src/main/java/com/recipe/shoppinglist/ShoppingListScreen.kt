@@ -49,8 +49,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.recipe.domain.model.ShoppingListItem
 import com.recipe.ui.theme.CreamBackground
 import com.recipe.ui.theme.CreamBackgroundDeep
@@ -61,7 +61,7 @@ import com.recipe.ui.theme.Terracotta
 @Composable
 fun ShoppingListScreen(
     modifier: Modifier = Modifier,
-    viewModel: ShoppingListViewModel = viewModel(factory = ShoppingListViewModel.factory()),
+    viewModel: ShoppingListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

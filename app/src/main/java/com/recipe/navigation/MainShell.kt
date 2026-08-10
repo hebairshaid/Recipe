@@ -39,6 +39,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.recipe.chat.presentation.ChatScreen
 import com.recipe.details.RecipeDetailsScreen
 import com.recipe.favorites.FavoritesScreen
 import com.recipe.home.HomeScreen
@@ -159,7 +160,10 @@ private fun MainTabs(
                     onLogout = onLogout,
                     modifier = Modifier.fillMaxSize(),
                 )
-                1 -> PlaceholderTab(title = "Chat")
+                1 -> ChatScreen(
+                    onRecipeClick = onRecipeClick,
+                    modifier = Modifier.fillMaxSize(),
+                )
                 2 -> ShoppingListScreen(modifier = Modifier.fillMaxSize())
                 3 -> FavoritesScreen(
                     onRecipeClick = onRecipeClick,

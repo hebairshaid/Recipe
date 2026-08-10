@@ -6,11 +6,17 @@ import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.recipe.auth.domain.session.SessionRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class SecureSessionManager(context: Context) : SessionRepository {
+@Singleton
+class SecureSessionManager @Inject constructor(
+    @ApplicationContext context: Context,
+) : SessionRepository {
 
     private val appContext = context.applicationContext
 

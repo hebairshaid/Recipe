@@ -10,8 +10,9 @@ import com.recipe.auth.domain.model.User
 import com.recipe.auth.domain.repository.AuthRepository
 import com.recipe.auth.domain.security.PasswordHasher
 import com.recipe.auth.domain.session.SessionToken
+import javax.inject.Inject
 
-class AuthRepositoryImpl(
+class AuthRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
     private val passwordHasher: PasswordHasher,
 ) : AuthRepository {

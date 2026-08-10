@@ -1,11 +1,10 @@
 package com.recipe.shoppinglist
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.recipe.auth.di.AuthModule
 import com.recipe.data.repository.ShoppingListRepository
 import com.recipe.domain.model.ShoppingListItem
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +12,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class ShoppingListUiState(
     val items: List<ShoppingListItem> = emptyList(),
@@ -22,7 +22,8 @@ data class ShoppingListUiState(
     val errorMessage: String? = null,
 )
 
-class ShoppingListViewModel(
+@HiltViewModel
+class ShoppingListViewModel @Inject constructor(
     private val repository: ShoppingListRepository,
 ) : ViewModel() {
 
@@ -102,15 +103,6 @@ class ShoppingListViewModel(
             repository.delete(itemId)
             if (_formState.value.editingItemId == itemId) {
                 cancelEditing()
-            }
-        }
-    }
-
-    companion object {
-        fun factory(): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ShoppingListViewModel(AuthModule.get().shoppingListRepository) as T
             }
         }
     }

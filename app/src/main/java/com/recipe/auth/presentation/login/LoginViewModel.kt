@@ -1,16 +1,16 @@
 package com.recipe.auth.presentation.login
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.recipe.auth.di.AuthModule
 import com.recipe.auth.domain.repository.AuthRepository
 import com.recipe.auth.domain.session.SessionRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class LoginUiState(
     val email: String = "",
@@ -22,7 +22,8 @@ data class LoginUiState(
     val isSuccess: Boolean = false,
 )
 
-class LoginViewModel(
+@HiltViewModel
+class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val sessionRepository: SessionRepository,
 ) : ViewModel() {
@@ -67,16 +68,6 @@ class LoginViewModel(
                         errorMessage = error.message ?: "Login failed",
                     )
                 }
-            }
-        }
-    }
-
-    companion object {
-        fun factory(): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val deps = AuthModule.get()
-                return LoginViewModel(deps.authRepository, deps.sessionRepository) as T
             }
         }
     }

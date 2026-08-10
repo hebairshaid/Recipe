@@ -38,8 +38,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.recipe.domain.model.Recipe
 import com.recipe.ui.components.RecipeImage
 import com.recipe.ui.theme.CreamBackground
@@ -51,7 +51,7 @@ import com.recipe.ui.theme.Terracotta
 fun FavoritesScreen(
     onRecipeClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: FavoritesViewModel = viewModel(factory = FavoritesViewModel.factory()),
+    viewModel: FavoritesViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

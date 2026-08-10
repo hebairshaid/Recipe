@@ -54,8 +54,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.recipe.domain.model.Ingredient
 import com.recipe.domain.model.RecipeDetail
 import com.recipe.ui.components.RecipeImage
@@ -71,9 +71,11 @@ fun RecipeDetailsScreen(
     recipeId: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: RecipeDetailsViewModel = viewModel(
+    viewModel: RecipeDetailsViewModel = hiltViewModel(
         key = recipeId,
-        factory = RecipeDetailsViewModel.factory(recipeId),
+        creationCallback = { factory: RecipeDetailsViewModel.Factory ->
+            factory.create(recipeId)
+        },
     ),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()

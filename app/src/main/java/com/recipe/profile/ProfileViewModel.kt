@@ -1,19 +1,19 @@
 package com.recipe.profile
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.recipe.auth.di.AuthModule
 import com.recipe.auth.domain.model.PasswordPolicy
 import com.recipe.auth.domain.model.User
 import com.recipe.auth.domain.repository.AuthRepository
 import com.recipe.auth.domain.session.SessionRepository
 import com.recipe.auth.domain.session.SessionToken
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class ProfileUiState(
     val user: User? = null,
@@ -31,7 +31,8 @@ data class ProfileUiState(
     val loggedOut: Boolean = false,
 )
 
-class ProfileViewModel(
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val sessionRepository: SessionRepository,
 ) : ViewModel() {
@@ -180,15 +181,5 @@ class ProfileViewModel(
     fun logout() {
         sessionRepository.clearToken()
         _uiState.update { it.copy(loggedOut = true) }
-    }
-
-    companion object {
-        fun factory(): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val deps = AuthModule.get()
-                return ProfileViewModel(deps.authRepository, deps.sessionRepository) as T
-            }
-        }
     }
 }

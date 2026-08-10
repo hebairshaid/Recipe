@@ -2,8 +2,11 @@ package com.recipe.auth.data.security
 
 import com.recipe.auth.domain.security.PasswordHasher
 import org.mindrot.jbcrypt.BCrypt
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class BCryptPasswordHasher : PasswordHasher {
+@Singleton
+class BCryptPasswordHasher @Inject constructor() : PasswordHasher {
     override fun hash(password: String): String {
         return BCrypt.hashpw(password.trim(), BCrypt.gensalt())
     }

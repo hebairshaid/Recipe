@@ -1,14 +1,16 @@
 package com.recipe.details
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.recipe.auth.di.AuthModule
 import com.recipe.data.network.NetworkMonitor
 import com.recipe.data.repository.FavoritesRepository
 import com.recipe.data.repository.RecipeRepository
 import com.recipe.domain.model.Recipe
 import com.recipe.domain.model.RecipeDetail
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -26,8 +28,9 @@ data class RecipeDetailsUiState(
     val errorMessage: String? = null,
 )
 
-class RecipeDetailsViewModel(
-    private val recipeId: String,
+@HiltViewModel(assistedFactory = RecipeDetailsViewModel.Factory::class)
+class RecipeDetailsViewModel @AssistedInject constructor(
+    @Assisted private val recipeId: String,
     private val repository: RecipeRepository,
     private val favoritesRepository: FavoritesRepository,
     networkMonitor: NetworkMonitor,
@@ -90,19 +93,8 @@ class RecipeDetailsViewModel(
         }
     }
 
-    companion object {
-        fun factory(recipeId: String): ViewModelProvider.Factory =
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    val deps = AuthModule.get()
-                    return RecipeDetailsViewModel(
-                        recipeId = recipeId,
-                        repository = deps.recipeRepository,
-                        favoritesRepository = deps.favoritesRepository,
-                        networkMonitor = deps.networkMonitor,
-                    ) as T
-                }
-            }
+    @AssistedFactory
+    interface Factory {
+        fun create(recipeId: String): RecipeDetailsViewModel
     }
 }
