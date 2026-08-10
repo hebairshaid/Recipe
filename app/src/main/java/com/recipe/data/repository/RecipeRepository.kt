@@ -3,6 +3,11 @@ package com.recipe.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.recipe.data.local.RecipeCacheDao
+import com.recipe.data.local.letterIndexFromName
+import com.recipe.data.local.toCacheEntity
+import com.recipe.data.local.toRecipeDetailOrNull
+import com.recipe.data.network.NetworkMonitor
 import com.recipe.data.paging.RecipePagingSource
 import com.recipe.data.remote.TheMealDbApi
 import com.recipe.data.remote.toRecipeDetail
@@ -12,6 +17,8 @@ import kotlinx.coroutines.flow.Flow
 
 class RecipeRepository(
     private val api: TheMealDbApi,
+    private val cacheDao: RecipeCacheDao,
+    private val networkMonitor: NetworkMonitor,
 ) {
     fun getPagedRecipes(query: String): Flow<PagingData<Recipe>> {
         return Pager(
@@ -24,6 +31,8 @@ class RecipeRepository(
             pagingSourceFactory = {
                 RecipePagingSource(
                     api = api,
+                    cacheDao = cacheDao,
+                    networkMonitor = networkMonitor,
                     query = query,
                 )
             },
@@ -31,9 +40,32 @@ class RecipeRepository(
     }
 
     suspend fun getRecipeDetail(id: String): RecipeDetail {
-        val meal = api.mealById(id).meals?.firstOrNull()
-            ?: error("Recipe not found")
-        return meal.toRecipeDetail()
-            ?: error("Recipe not found")
+        if (networkMonitor.currentlyOnline()) {
+            try {
+                val meal = api.mealById(id).meals?.firstOrNull()
+                    ?: error("Recipe not found")
+                val detail = meal.toRecipeDetail() ?: error("Recipe not found")
+                val existing = cacheDao.getById(id)
+                cacheDao.upsertAll(
+                    listOf(
+                        detail.toCacheEntity(
+                            letterIndex = existing?.letterIndex
+                                ?: letterIndexFromName(detail.name),
+                        ),
+                    ),
+                )
+                return detail
+            } catch (_: Exception) {
+                return cachedDetail(id)
+                    ?: error("Unable to load recipe. You are offline.")
+            }
+        }
+
+        return cachedDetail(id)
+            ?: error("Unable to load recipe. You are offline.")
+    }
+
+    private suspend fun cachedDetail(id: String): RecipeDetail? {
+        return cacheDao.getById(id)?.toRecipeDetailOrNull()
     }
 }

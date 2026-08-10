@@ -2,6 +2,7 @@ package com.recipe.navigation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -111,6 +112,7 @@ private fun MainTabs(
 
     Scaffold(
         containerColor = CreamBackground,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             NavigationBar(
                 containerColor = Color.White.copy(alpha = 0.92f),
@@ -154,6 +156,7 @@ private fun MainTabs(
             when (selectedIndex) {
                 0 -> HomeScreen(
                     onRecipeClick = onRecipeClick,
+                    onLogout = onLogout,
                     modifier = Modifier.fillMaxSize(),
                 )
                 1 -> PlaceholderTab(title = "Chat")

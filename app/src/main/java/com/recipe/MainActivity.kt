@@ -1,9 +1,12 @@
 package com.recipe
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -15,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
 import com.recipe.auth.di.AuthModule
 import com.recipe.auth.presentation.AuthNavHost
 import com.recipe.navigation.MainShell
@@ -23,7 +25,6 @@ import com.recipe.splash.SplashScreen
 import com.recipe.ui.theme.CreamBackground
 import com.recipe.ui.theme.RecipeTheme
 import com.recipe.ui.theme.Terracotta
-import androidx.compose.foundation.background
 
 private enum class AppDestination {
     Splash,
@@ -36,8 +37,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AuthModule.init(applicationContext)
-        enableEdgeToEdge()
-        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
+        val cream = Color.parseColor("#FAF7F2")
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(
+                scrim = cream,
+                darkScrim = cream,
+            ),
+            navigationBarStyle = SystemBarStyle.light(
+                scrim = cream,
+                darkScrim = cream,
+            ),
+        )
 
         setContent {
             RecipeTheme(dynamicColor = false) {

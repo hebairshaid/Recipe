@@ -8,7 +8,11 @@ import com.recipe.auth.data.security.SecureSessionManager
 import com.recipe.auth.domain.repository.AuthRepository
 import com.recipe.auth.domain.session.SessionRepository
 import com.recipe.auth.domain.session.SessionToken
+import com.recipe.data.local.RecipeCacheDatabase
+import com.recipe.data.network.NetworkMonitor
+import com.recipe.data.remote.NetworkModule
 import com.recipe.data.repository.FavoritesRepository
+import com.recipe.data.repository.RecipeRepository
 import com.recipe.data.repository.ShoppingListRepository
 
 class AuthDependencies(
@@ -16,6 +20,8 @@ class AuthDependencies(
     val sessionRepository: SessionRepository,
     val favoritesRepository: FavoritesRepository,
     val shoppingListRepository: ShoppingListRepository,
+    val recipeRepository: RecipeRepository,
+    val networkMonitor: NetworkMonitor,
 ) {
     suspend fun hasValidSession(): Boolean {
         val token = sessionRepository.getToken() ?: return false
@@ -41,9 +47,12 @@ object AuthModule {
         if (deps != null) return
         synchronized(this) {
             if (deps == null) {
-                val db = AuthDatabase.getInstance(context)
+                val appContext = context.applicationContext
+                val db = AuthDatabase.getInstance(appContext)
+                val cacheDb = RecipeCacheDatabase.getInstance(appContext)
                 val hasher = BCryptPasswordHasher()
-                val sessionRepository = SecureSessionManager(context)
+                val sessionRepository = SecureSessionManager(appContext)
+                val networkMonitor = NetworkMonitor(appContext)
                 deps = AuthDependencies(
                     authRepository = AuthRepositoryImpl(db.userDao(), hasher),
                     sessionRepository = sessionRepository,
@@ -55,6 +64,12 @@ object AuthModule {
                         shoppingListDao = db.shoppingListDao(),
                         sessionRepository = sessionRepository,
                     ),
+                    recipeRepository = RecipeRepository(
+                        api = NetworkModule.api,
+                        cacheDao = cacheDb.recipeCacheDao(),
+                        networkMonitor = networkMonitor,
+                    ),
+                    networkMonitor = networkMonitor,
                 )
             }
         }

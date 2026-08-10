@@ -33,8 +33,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,8 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.recipe.domain.model.Recipe
+import com.recipe.ui.components.RecipeImage
 import com.recipe.ui.theme.CreamBackground
 import com.recipe.ui.theme.ForestGreen
 import com.recipe.ui.theme.SageGreen
@@ -144,15 +142,13 @@ private fun FavoriteRecipeCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
     ) {
-        AsyncImage(
-            model = recipe.imageUrl,
+        RecipeImage(
+            imageUrl = recipe.imageUrl,
             contentDescription = recipe.name,
-            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(RoundedCornerShape(18.dp))
-                .background(Color.White.copy(alpha = 0.5f)),
+                .clip(RoundedCornerShape(18.dp)),
         )
 
         Spacer(modifier = Modifier.height(8.dp))

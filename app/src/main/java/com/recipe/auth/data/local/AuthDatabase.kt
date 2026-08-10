@@ -27,6 +27,7 @@ abstract class AuthDatabase : RoomDatabase() {
                     "recipe_auth.db",
                 )
                     .fallbackToDestructiveMigration(dropAllTables = true)
+                    .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
                     .build()
                     .also { instance = it }
             }

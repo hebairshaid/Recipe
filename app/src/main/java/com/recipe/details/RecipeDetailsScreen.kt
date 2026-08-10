@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Public
+import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Restaurant
 import androidx.compose.material.icons.rounded.Spa
@@ -49,16 +50,15 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.recipe.domain.model.Ingredient
 import com.recipe.domain.model.RecipeDetail
+import com.recipe.ui.components.RecipeImage
 import com.recipe.ui.theme.CreamBackground
 import com.recipe.ui.theme.CreamBackgroundDeep
 import com.recipe.ui.theme.ForestGreen
@@ -97,8 +97,13 @@ fun RecipeDetailsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = state.errorMessage ?: "Something went wrong",
+                        text = if (state.isOffline) {
+                            "You are offline"
+                        } else {
+                            state.errorMessage ?: "Something went wrong"
+                        },
                         color = ForestGreen,
+                        fontWeight = FontWeight.SemiBold,
                     )
                     TextButton(onClick = viewModel::loadDetail) {
                         Text("Retry", color = Terracotta)
@@ -110,6 +115,7 @@ fun RecipeDetailsScreen(
                 RecipeDetailsContent(
                     detail = state.detail!!,
                     isFavorite = state.isFavorite,
+                    isOffline = state.isOffline,
                     onBack = onBack,
                     onFavoriteClick = viewModel::toggleFavorite,
                 )
@@ -132,6 +138,7 @@ fun RecipeDetailsScreen(
 private fun RecipeDetailsContent(
     detail: RecipeDetail,
     isFavorite: Boolean,
+    isOffline: Boolean,
     onBack: () -> Unit,
     onFavoriteClick: () -> Unit,
 ) {
@@ -155,10 +162,9 @@ private fun RecipeDetailsContent(
                     .fillMaxWidth()
                     .height(340.dp),
             ) {
-                AsyncImage(
-                    model = detail.imageUrl,
+                RecipeImage(
+                    imageUrl = detail.imageUrl,
                     contentDescription = detail.name,
-                    contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
                 Box(
@@ -211,6 +217,32 @@ private fun RecipeDetailsContent(
                             .clip(RoundedCornerShape(50))
                             .background(ForestGreen.copy(alpha = 0.15f)),
                     )
+
+                    if (isOffline) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 14.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(Terracotta.copy(alpha = 0.12f))
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.WifiOff,
+                                contentDescription = null,
+                                tint = Terracotta,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "You are offline",
+                                color = Terracotta,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    }
 
                     Text(
                         text = detail.name,

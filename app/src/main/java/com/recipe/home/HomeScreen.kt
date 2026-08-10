@@ -23,8 +23,10 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Spa
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,12 +37,13 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,9 +55,9 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import coil.compose.AsyncImage
 import com.recipe.domain.model.Recipe
 import com.recipe.ui.components.AnimatedLogo
+import com.recipe.ui.components.RecipeImage
 import com.recipe.ui.theme.CreamBackground
 import com.recipe.ui.theme.ForestGreen
 import com.recipe.ui.theme.SageGreen
@@ -63,11 +66,16 @@ import com.recipe.ui.theme.Terracotta
 @Composable
 fun HomeScreen(
     onRecipeClick: (String) -> Unit,
+    onLogout: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.factory()),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val recipes = viewModel.recipes.collectAsLazyPagingItems()
+
+    LaunchedEffect(state.loggedOut) {
+        if (state.loggedOut) onLogout()
+    }
 
     Column(
         modifier = modifier
@@ -83,13 +91,26 @@ fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(
-                text = "Recipe",
-                color = Terracotta,
-                fontSize = 34.sp,
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = FontFamily.Serif,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(
+                    onClick = viewModel::logout,
+                    modifier = Modifier.size(40.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.Logout,
+                        contentDescription = "Logout",
+                        tint = Terracotta,
+                        modifier = Modifier.scale(scaleX = -1f, scaleY = 1f),
+                    )
+                }
+                Text(
+                    text = "Recipe",
+                    color = Terracotta,
+                    fontSize = 34.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = FontFamily.Serif,
+                )
+            }
             AnimatedLogo(size = 56.dp)
         }
 
@@ -126,13 +147,45 @@ fun HomeScreen(
             ),
         )
 
+        if (state.isOffline) {
+            Spacer(modifier = Modifier.height(12.dp))
+            OfflineBanner()
+        }
+
         Spacer(modifier = Modifier.height(18.dp))
 
         RecipeGrid(
             recipes = recipes,
             favoriteIds = state.favoriteIds,
+            isOffline = state.isOffline,
             onFavoriteClick = viewModel::toggleFavorite,
             onRecipeClick = onRecipeClick,
+        )
+    }
+}
+
+@Composable
+private fun OfflineBanner(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(Terracotta.copy(alpha = 0.12f))
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.WifiOff,
+            contentDescription = null,
+            tint = Terracotta,
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "You are offline",
+            color = Terracotta,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
         )
     }
 }
@@ -141,6 +194,7 @@ fun HomeScreen(
 private fun RecipeGrid(
     recipes: LazyPagingItems<Recipe>,
     favoriteIds: Set<String>,
+    isOffline: Boolean,
     onFavoriteClick: (Recipe) -> Unit,
     onRecipeClick: (String) -> Unit,
 ) {
@@ -164,8 +218,13 @@ private fun RecipeGrid(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = refresh.error.message ?: "Something went wrong",
+                        text = if (isOffline) {
+                            "You are offline"
+                        } else {
+                            refresh.error.message ?: "Something went wrong"
+                        },
                         color = ForestGreen,
+                        fontWeight = FontWeight.SemiBold,
                     )
                     TextButton(onClick = { recipes.retry() }) {
                         Text("Retry", color = Terracotta)
@@ -180,7 +239,7 @@ private fun RecipeGrid(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "No recipes found",
+                    text = if (isOffline) "You are offline" else "No recipes found",
                     color = ForestGreen.copy(alpha = 0.7f),
                     fontFamily = FontFamily.Serif,
                     fontSize = 18.sp,
@@ -267,15 +326,13 @@ private fun RecipeCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
     ) {
-        AsyncImage(
-            model = recipe.imageUrl,
+        RecipeImage(
+            imageUrl = recipe.imageUrl,
             contentDescription = recipe.name,
-            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(RoundedCornerShape(18.dp))
-                .background(Color.White.copy(alpha = 0.5f)),
+                .clip(RoundedCornerShape(18.dp)),
         )
 
         Spacer(modifier = Modifier.height(8.dp))

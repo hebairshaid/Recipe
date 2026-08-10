@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.recipe.auth.di.AuthModule
-import com.recipe.data.remote.NetworkModule
+import com.recipe.data.network.NetworkMonitor
 import com.recipe.data.repository.FavoritesRepository
 import com.recipe.data.repository.RecipeRepository
 import com.recipe.domain.model.Recipe
@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -21,6 +22,7 @@ data class RecipeDetailsUiState(
     val detail: RecipeDetail? = null,
     val isFavorite: Boolean = false,
     val isLoading: Boolean = true,
+    val isOffline: Boolean = false,
     val errorMessage: String? = null,
 )
 
@@ -28,6 +30,7 @@ class RecipeDetailsViewModel(
     private val recipeId: String,
     private val repository: RecipeRepository,
     private val favoritesRepository: FavoritesRepository,
+    networkMonitor: NetworkMonitor,
 ) : ViewModel() {
 
     private val _detailState = MutableStateFlow(RecipeDetailsUiState())
@@ -35,12 +38,16 @@ class RecipeDetailsViewModel(
     val uiState: StateFlow<RecipeDetailsUiState> = combine(
         _detailState,
         favoritesRepository.favorites,
-    ) { detailState, favorites ->
-        detailState.copy(isFavorite = favorites.any { it.id == recipeId })
+        networkMonitor.isOnline.map { online -> !online },
+    ) { detailState, favorites, isOffline ->
+        detailState.copy(
+            isFavorite = favorites.any { it.id == recipeId },
+            isOffline = isOffline,
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = RecipeDetailsUiState(),
+        initialValue = RecipeDetailsUiState(isOffline = !networkMonitor.currentlyOnline()),
     )
 
     init {
@@ -88,10 +95,12 @@ class RecipeDetailsViewModel(
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    val deps = AuthModule.get()
                     return RecipeDetailsViewModel(
                         recipeId = recipeId,
-                        repository = RecipeRepository(NetworkModule.api),
-                        favoritesRepository = AuthModule.get().favoritesRepository,
+                        repository = deps.recipeRepository,
+                        favoritesRepository = deps.favoritesRepository,
+                        networkMonitor = deps.networkMonitor,
                     ) as T
                 }
             }
